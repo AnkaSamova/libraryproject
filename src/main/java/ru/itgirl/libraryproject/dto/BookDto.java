@@ -12,11 +12,10 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class BookDto {
     private Long id;
     private String name;
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String genre;
 
     private List<AuthorDto> authors;
