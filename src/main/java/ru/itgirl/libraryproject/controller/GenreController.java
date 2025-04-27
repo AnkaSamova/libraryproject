@@ -10,7 +10,6 @@ import ru.itgirl.libraryproject.service.GenreService;
 @RestController
 @RequiredArgsConstructor
 public class GenreController {
-
     private final GenreService genreService;
 
     @GetMapping("/genre/{id}")
