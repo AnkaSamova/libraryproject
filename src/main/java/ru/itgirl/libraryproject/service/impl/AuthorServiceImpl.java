@@ -16,6 +16,7 @@ import ru.itgirl.libraryproject.repository.AuthorRepository;
 import ru.itgirl.libraryproject.service.AuthorService;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -57,8 +58,7 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     public AuthorDto createAuthor(AuthorCreateDto authorCreateDto) {
         Author author = authorRepository.save(convertDtoToEntity(authorCreateDto));
-        AuthorDto authorDto = convertEntityToDto(author);
-        return authorDto;
+        return convertEntityToDto(author);
     }
 
     @Override
@@ -67,13 +67,18 @@ public class AuthorServiceImpl implements AuthorService {
         author.setName(authorUpdateDto.getName());
         author.setSurname(authorUpdateDto.getSurname());
         Author savedAuthor = authorRepository.save(author);
-        AuthorDto authorDto = convertEntityToDto(savedAuthor);
-        return authorDto;
+        return convertEntityToDto(savedAuthor);
     }
 
     @Override
     public void deleteAuthor(Long id) {
         authorRepository.deleteById(id);
+    }
+
+    @Override
+    public List<AuthorDto> getAllAuthors() {
+        List<Author> authors = authorRepository.findAll();
+        return authors.stream().map(this::convertEntityToDto).collect(Collectors.toList());
     }
 
     private AuthorDto convertToDto(Author author) {
@@ -112,12 +117,11 @@ public class AuthorServiceImpl implements AuthorService {
                             .build())
                     .toList();
         }
-        AuthorDto authorDto = AuthorDto.builder()
+        return AuthorDto.builder()
                 .id(author.getId())
                 .name(author.getName())
                 .surname(author.getSurname())
                 .books(bookDtoList)
                 .build();
-        return authorDto;
     }
 }

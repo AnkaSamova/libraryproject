@@ -1,0 +1,64 @@
+body {
+    font-family: "fantasy", sans-serif;
+}
+
+.container {
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+h2 {
+    font-size: 26px;
+    margin: 20px 0;
+    text-align: center;
+}
+
+h2 small {
+    font-size: 0.5em;
+}
+
+.responsive-table li {
+    padding: 5px 5px;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 25px;
+}
+
+.responsive-table .table-header {
+    background-color: #D2691E;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.responsive-table .table-row {
+    background-color: #FFDEAD;
+    box-shadow: 0 0 9px 0 rgba(0, 0, 0, 0.1);
+}
+
+.responsive-table .col-1 {
+    flex-basis: 10%;
+}
+
+.responsive-table .col-2 {
+    flex-basis: 25%;
+}
+
+.responsive-table .col-3 {
+    flex-basis: 25%;
+}
+
+.responsive-table .col-4 {
+    flex-basis: 30%;
+}
+
+.table-row .col-4 ul {
+    padding-left: 0;
+}
+
+.responsive-table .table-row:hover {
+    background-color: #D2B48C;
+}
