@@ -5,6 +5,7 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import ru.itgirl.libraryproject.dto.AuthorCreateDto;
@@ -16,29 +17,56 @@ import ru.itgirl.libraryproject.repository.AuthorRepository;
 import ru.itgirl.libraryproject.service.AuthorService;
 
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthorServiceImpl implements AuthorService {
     private final AuthorRepository authorRepository;
 
     @Override
     public AuthorDto getAuthorById(Long id) {
-        Author author = authorRepository.findById(id).orElseThrow();
-        return convertToDto(author);
+        log.info("Try to find author by id {}", id);
+        Optional<Author> author = authorRepository.findById(id);
+        if (author.isPresent()) {
+            AuthorDto authorDto = convertEntityToDto(author.get());
+            log.info("Author: {}", authorDto.toString());
+            return authorDto;
+        } else {
+            log.error("Author with id {} not found", id);
+            throw new NoSuchElementException("No value present");
+        }
     }
 
     @Override
     public AuthorDto getByNameV1(String name) {
-        Author author = authorRepository.findAuthorByName(name).orElseThrow();
-        return convertToDto(author);
+        log.info("Try to find author by name {}", name);
+        Optional<Author> author = authorRepository.findAuthorByName(name);
+        if (author.isPresent()) {
+            AuthorDto authorDto = convertToDto(author.get());
+            log.info("Author: {}", authorDto.toString());
+            return authorDto;
+        } else {
+            log.error("Author with name {} not found", name);
+            throw new NoSuchElementException("No value present");
+        }
     }
 
     @Override
     public AuthorDto getByNameV2(String name) {
-        Author author = authorRepository.findAuthorByNameBySql(name).orElseThrow();
-        return convertToDto(author);
+        log.info("Try to find author by name {}", name);
+        Optional<Author> author = authorRepository.findAuthorByNameBySql(name);
+        if (author.isPresent()) {
+            AuthorDto authorDto = convertToDto(author.get());
+            log.info("Author: {}", authorDto.toString());
+            return authorDto;
+        } else {
+            log.error("Author with name {} not found", name);
+            throw new NoSuchElementException("No value present");
+        }
     }
 
     @Override
@@ -51,34 +79,75 @@ public class AuthorServiceImpl implements AuthorService {
                 return cb.equal(root.get("name"), name);
             }
         });
-        Author author = authorRepository.findOne(specification).orElseThrow();
-        return convertToDto(author);
+        log.info("Try to find author by name {}", name);
+        Optional<Author> author = authorRepository.findOne(specification);
+        if (author.isPresent()) {
+            AuthorDto authorDto = convertToDto(author.get());
+            log.info("Author: {}", authorDto.toString());
+            return authorDto;
+        } else {
+            log.error("Author with name {} not found", name);
+            throw new NoSuchElementException("No value present");
+        }
     }
 
     @Override
     public AuthorDto createAuthor(AuthorCreateDto authorCreateDto) {
-        Author author = authorRepository.save(convertDtoToEntity(authorCreateDto));
-        return convertEntityToDto(author);
+        log.info("Try to create new author: {}", authorCreateDto.toString());
+        Optional<Author> author = Optional.of(authorRepository.save(convertDtoToEntity(authorCreateDto)));
+        if (author.isPresent()) {
+            AuthorDto authorDto = convertEntityToDto(author.get());
+            log.info("New author created: {}", authorDto.toString());
+            return authorDto;
+        } else {
+            log.error("New author not created");
+            throw new RuntimeException("Error creating new author");
+        }
     }
 
     @Override
     public AuthorDto updateAuthor(AuthorUpdateDto authorUpdateDto) {
-        Author author = authorRepository.findById(authorUpdateDto.getId()).orElseThrow();
-        author.setName(authorUpdateDto.getName());
-        author.setSurname(authorUpdateDto.getSurname());
-        Author savedAuthor = authorRepository.save(author);
-        return convertEntityToDto(savedAuthor);
+        log.info("Try to update author with id {}", authorUpdateDto.getId());
+        Optional<Author> author = authorRepository.findById(authorUpdateDto.getId());
+        if (author.isPresent()) {
+            Author authorEntity = author.get();
+            authorEntity.setName(authorUpdateDto.getName());
+            authorEntity.setSurname(authorUpdateDto.getSurname());
+            Author savedAuthor = authorRepository.save(authorEntity);
+            AuthorDto authorDto = convertEntityToDto(savedAuthor);
+            log.info("Author with id {} updated: {}", authorDto.getId(), authorDto);
+            return authorDto;
+        } else {
+            log.error("Author with id {} not found", authorUpdateDto.getId());
+            throw new NoSuchElementException("No value present");
+        }
     }
 
     @Override
     public void deleteAuthor(Long id) {
-        authorRepository.deleteById(id);
+        log.info("Try to delete author by id {}", id);
+        Optional<Author> author = authorRepository.findById(id);
+        if (author.isPresent()) {
+            authorRepository.deleteById(id);
+            log.info("Author with id {} deleted", id);
+        } else {
+            log.error("Author with id {} not found", id);
+            throw new NoSuchElementException("No value present");
+        }
     }
 
     @Override
     public List<AuthorDto> getAllAuthors() {
+        log.info("Try to get all authors");
         List<Author> authors = authorRepository.findAll();
-        return authors.stream().map(this::convertEntityToDto).collect(Collectors.toList());
+        if (authors.isEmpty()) {
+            log.error("Authors not found");
+            throw new RuntimeException("Error getting all authors");
+        } else {
+            List<AuthorDto> authorsDto = authors.stream().map(this::convertEntityToDto).collect(Collectors.toList());
+            log.info("Authors found: {}", authorsDto);
+            return authorsDto;
+        }
     }
 
     private AuthorDto convertToDto(Author author) {

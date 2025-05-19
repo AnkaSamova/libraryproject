@@ -27,20 +27,19 @@ public class SecurityConfig {
 
     // Настройка цепочки фильтров безопасности
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
+    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
+        httpSecurity
+                // Отключаем CSRF для простоты взаимодействия с REST API
+                .csrf(csrf -> csrf.disable())
                 // Определение правил доступа:
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/book").hasRole("USER")
                         .requestMatchers("/book/v2").hasRole("ADMIN")
-                        .requestMatchers("/books").hasRole("ADMIN")
+                        .requestMatchers("/books").hasRole("USER")
                         .requestMatchers("/api/register", "/login").permitAll()
-                        .anyRequest().authenticated()
-                )
-                .httpBasic(Customizer.withDefaults()) // Включение HTTP Basic Authentication
-                // Отключаем CSRF для простоты взаимодействия с REST API
-                .csrf(csrf -> csrf.disable());
-        return http.build();
+                        .anyRequest().authenticated())
+                .httpBasic(Customizer.withDefaults()); // Включение HTTP Basic Authentication
+        return httpSecurity.build();
     }
 
     // Бин для шифрования паролей с использованием BCrypt

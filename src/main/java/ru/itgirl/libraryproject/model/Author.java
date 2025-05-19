@@ -14,15 +14,12 @@ public class Author {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @Column(nullable = false)
     @Setter
     private String name;
-
     @Column(nullable = false)
     @Setter
     private String surname;
-
     @ManyToMany(mappedBy = "authors")
     private Set<Book> books;
 }

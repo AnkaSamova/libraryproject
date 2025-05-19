@@ -8,22 +8,18 @@ public class AppUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     // Уникальное имя пользователя
     @Column(nullable = false, unique = true, length = 50)
     private String username;
-
     // Зашифрованный пароль (рекомендуется хранить в виде хэша)
     @Column(nullable = false, length = 255)
     private String password;
-
     /**
      * Строка, содержащая роли пользователя, например: "ROLE_USER,ROLE_ADMIN".
      * Роли можно разделять запятыми для поддержки множественных полномочий.
      */
     @Column(nullable = false, length = 255)
     private String roles;
-
     // Флаг, указывающий активен ли пользователь.
     @Column(nullable = false)
     private boolean enabled = true;
